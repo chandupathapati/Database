@@ -1,0 +1,87 @@
+SAMPLE STUDENT DATABASE
+
+
+
+school (sch_code, sch_name, sch_phone, sch_dean_name)
+advisor (adv_code, adv_fname, adv_lname, adv_phone, sch_code)
+faculty (fac_code, fac_fname, fac_lname, fac_phone, sch_code)
+department (dept_code, dept_name, dept_phone, fac_code)
+major (maj_code, maj_desc, sch_code)
+maj_adv (maj_code, adv_code, maj_adv_level)
+student (std_code	, std_fname, std_lname, std_gend, maj_code, std_dob) 
+grade (std_code,	std_fname, std_lname, gr_t1, gr_t2, gr_hw, gr_pr, gr_avg, gr_lg)
+ 
+
+create table school
+(sch_code 	varchar2(8) 	constraint school_sch_code_pk primary key,
+sch_name 	varchar2(50),
+sch_phone 	varchar2(12),
+sch_dean_name 	varchar2(35));
+
+
+create table advisor
+(adv_code            varchar2(8)	constraint advisor_adv_code_pk primary key,
+adv_fname           varchar2(15),
+adv_lname           varchar2(15),
+adv_phone           varchar2(12),
+sch_code              varchar2(8) 	constraint advisor_sch_code_fk references school (sch_code));
+
+
+
+create table faculty
+(fac_code             varchar2(8)	constraint faculty_fac_code_pk primary key,
+fac_fname            varchar2(15),
+fac_lname            varchar2(15),
+fac_gend              varchar2(8),
+fac_phone            varchar2(12),
+sch_code              varchar2(8) 	constraint faculty_sch_code_fk references school (sch_code));
+
+
+create table department
+(dept_code           varchar2(8) 	constraint department_dept_code_pk primary key,
+dept_name           varchar2(50),
+dept_phone          varchar2(12),
+fac_code               varchar2(8) 	constraint department_fac_code_fk references faculty (fac_code));
+
+
+
+create table major
+(maj_code            varchar2(10)	constraint major_maj_code_pk primary key,
+maj_desc              varchar2(30),
+sch_code              varchar2(8) 	constraint major_sch_code_fk references school(sch_code));
+ 
+
+
+create table maj_adv 
+(maj_code            varchar2(10)	constraint  maj_adv_maj_code_fk references major (maj_code),
+adv_code             varchar2(08)	constraint  maj_adv_adv_code_fk references advisor (adv_code),
+maj_adv_level      varchar2(12),
+constraint maj_adv_maj_code_adv_code_cpk primary key (maj_code, adv_code));
+ 
+
+create table student
+(std_code             varchar2(9),
+std_fname            varchar2(15)	constraint student_std_lname_nn not null,
+std_lname            varchar2(15)	constraint student_std_fname_nn not null,
+std_gend              varchar2(8),	
+maj_code              varchar2(10)	constraint student_maj_code1_fk references major (maj_code),
+std_dob	               date, 
+constraint student_std_code_pk primary key (std_code));
+
+
+
+create table grade
+(std_code             varchar2(9)	constraint grade_std_code_pk primary key
+				constraint grade_std_code_fk references student (std_code),
+std_fname            varchar2(15)	constraint grade_std_lname_nn not null,
+std_lname            varchar2(15)	constraint grade_std_fname_nn not null,
+gr_t1	               number(5),	constraint grade_gr_t1_cc check (gr_t1 between 0 and 100),
+gr_t2	               number(5),	
+gr_hw	               number(5),	
+gr_pr	               number(5),
+gr_avg	               number(5,2),
+gr_lg	               varchar2(5));
+
+
+
+

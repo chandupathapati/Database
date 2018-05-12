@@ -1,0 +1,133 @@
+EMPLOYEE DATABASE
+
+
+employee(emp_num, emp_fname, emp_lname, emp_ini, emp_sal, emp_title, emp_gend, emp_dob,
+           emp_doe, dept_id, emp_phone, emp_off)
+
+Stores employee data. emp_num is primary key.
+
+department(dept_id, dept_name, emp_num)
+
+emp_num is a foreign key referencing department manager's emp_num.
+
+computer(comp_id, comp_manuf, comp_mod, comp_proc, comp_ram, comp_hd, comp_cost, comp_qty)
+
+This table lists attributes and quantities of various computers purchased and stored by the company.
+
+monitor(mon_id, mon_manuf, mon_mod, mon_cost, mon_qty)
+
+This table lists attributes and quantities of various monitors purchased and stored by the company.
+
+pc(pc_num, comp_id, comp_num, mon_id, mon_num, emp_num)
+
+Stores information on a specific pc (i.e., computer and monitor) configured and assigned to an employee.  pc_num identifies a pc and emp_num refers to the employee that a pc has been assigned to.  
+
+software(soft_id, soft_name, soft_vers, soft_type)
+
+Maintains information on various software purchased and installed on various computers in the organization.
+
+inst_soft(soft_id, pc_num, inst_date, emp_num)
+
+This table links software and pc tables. Stores information on the software installed on a machine. emp_num refers to the technician who installed the software.
+  
+comp_exp(cexp_tnum, cexp_date, cexp_type, cepx_amount,  pc_num, emp_num)
+
+This table maintains expenses for personal computers. cexp_num is the transaction number. cexp_type is the type of expense and has the following categories: h (hardware), s (software) and m (maintenance).  emp_num is the id of the employee who performed the specific maintenance.   
+
+ytd_compexp(dept_id, dept_name, ytd_total, ytd_date)
+
+This table maintains to-date total computing expenses for a department. ytd_total represents the total amount of computer maintenance expenses for different departments. ytd_date is the date when the total of the computer expenses of a department was updated. 
+
+
+ 
+
+COMMANDS FOR CREATING THE EMPLOYEE DATABASE
+
+
+CREATE TABLE EMPLOYEE
+(EMP_NUM		VARCHAR2(7) CONSTRAINT EMPLOYEE_EMP_NUM_PK PRIMARY KEY,
+EMP_FNAME 		VARCHAR2(15) CONSTRAINT EMPLOYEE_EMP_LNAME_NN NOT NULL,
+EMP_LNAME 		VARCHAR2(15) CONSTRAINT EMPLOYEE_EMP_FNAME_NN NOT NULL,
+EMP_INI   		VARCHAR2(7),
+EMP_SAL		NUMBER(5) 
+CONSTRAINT EMPLOYEE_EMP_SAL_CC CHECK (EMP_SAL BETWEEN 5000 AND 20000),
+EMP_TITLE 		VARCHAR2(15),
+EMP_GEND 		VARCHAR2(7),
+EMP_DOB    		DATE,
+EMP_DOE    		DATE,
+DEPT_ID		VARCHAR2(8),
+EMP_PHONE  		VARCHAR2(12),
+EMP_OFF 		VARCHAR2(7));
+
+
+CREATE TABLE DEPARTMENT
+(DEPT_ID 		VARCHAR2(8) CONSTRAINT DEPARTMENT_DEPT_ID_PK PRIMARY KEY,
+DEPT_NAME 		VARCHAR2(20),
+EMP_NUM 	VARCHAR2(7) CONSTRAINT DEPARTMENT_EMP_NUM_FK REFERENCES EMPLOYEE(EMP_NUM));
+
+
+CREATE TABLE COMPUTER
+(COMP_ID 		VARCHAR2(7)  CONSTRAINT COMPUTER_COMP_ID_PK PRIMARY KEY,
+COMP_MANUF		VARCHAR2(15),
+COMP_MOD		VARCHAR2(15),
+COMP_PROC  		VARCHAR2(10),
+COMP_RAM    		NUMBER(8),
+COMP_HD     		NUMBER(8),
+COMP_COST 		NUMBER(7,2) CONSTRAINT COMPUTER_COMP_COST_NN NOT NULL,
+COMP_QTY		NUMBER(8));
+
+
+
+CREATE TABLE MONITOR
+(MON_ID  		VARCHAR2(7) CONSTRAINT MONITOR_MON_ID_PK PRIMARY KEY,
+MON_MANUF 		VARCHAR2(15),
+MON_MOD 		VARCHAR2(15),
+MON_COST  		NUMBER(7,2)  CONSTRAINT MONITOR_MON_COST_NN NOT NULL,
+MON_QTY		NUMBER(8));
+
+
+ 
+
+CREATE TABLE PC 
+(PC_NUM 	VARCHAR2(7) CONSTRAINT PC_PC_NUM_PK PRIMARY KEY,
+COMP_ID 	VARCHAR2(7) CONSTRAINT PC_COMP_ID_FK REFERENCES COMPUTER(COMP_ID),
+COMP_NUM	VARCHAR2(8) CONSTRAINT PC_COMP_NUM_UK UNIQUE,
+MON_ID 	VARCHAR2(7) CONSTRAINT PC_MON_ID_FK REFERENCES MONITOR(MON_ID),
+MON_NUM	VARCHAR2(8) CONSTRAINT PC_MON_NUM_UK UNIQUE,
+EMP_NUM 	VARCHAR2(7) CONSTRAINT PC_EMP_NUM_FK REFERENCES EMPLOYEE(EMP_NUM));
+ 
+
+CREATE TABLE SOFTWARE 
+(SOFT_ID 	VARCHAR2(7) CONSTRAINT SOFTWARE_SOFT_ID_PK  PRIMARY KEY,
+SOFT_NAME 	VARCHAR2(15),
+SOFT_VERS 	VARCHAR2(9),
+SOFT_TYPE 	VARCHAR2(15),
+SOFT_COST 	NUMBER (6,2) CONSTRAINT SOFTWARE_SOFT_COST_NN NOT NULL);
+
+
+
+CREATE TABLE INST_SOFT 
+(SOFT_ID	VARCHAR2(7) 
+            		CONSTRAINT INST_SOFT_SOFT_ID_FK REFERENCES SOFTWARE(SOFT_ID),
+PC_NUM  	VARCHAR2(7) CONSTRAINT INST_SOFT_PC_NUM_FK  REFERENCES PC(PC_NUM),
+INST_DATE 	DATE,
+EMP_NUM  	VARCHAR2(7) 
+		CONSTRAINT INST_SOFT_EMP_NUM_FK REFERENCES EMPLOYEE(EMP_NUM),
+CONSTRAINT INST_SOFT_SOFT_ID_PC_NUM_CPK PRIMARY KEY (SOFT_ID, PC_NUM));
+
+
+CREATE TABLE COMP_EXP
+(CEXP_TNUM 		NUMBER(9) CONSTRAINT COMPEXP_CEXP_TNUM_PK PRIMARY KEY,
+CEXP_DATE  		DATE,
+CEXP_TYPE 		VARCHAR2(9),
+CEXP_AMOUNT	NUMBER(10,2),
+PC_NUM 		VARCHAR2(8) 	CONSTRAINT COMPEXP_PC_NUM_FK  REFERENCES PC(PC_NUM),
+EMP_NUM		VARCHAR2(7) CONSTRAINT COMPEXP_EMP_NUM_FK REFERENCES
+                                       EMPLOYEE(EMP_NUM));
+
+CREATE TABLE YTD_COMP_EXP
+(DEPT_ID 		VARCHAR2(8) CONSTRAINT YTD_COMPEXP_DEPT_ID_PK PRIMARY KEY
+	      		CONSTRAINT YTD_COMPEXP_DEPT_ID_FK REFERENCES DEPARTMENT(DEPT_ID),
+DEPT_NAME 		VARCHAR2(20),
+YTD_TOTAL		 NUMBER(10,2),
+YTD_DATE		DATE);
