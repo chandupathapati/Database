@@ -1,5 +1,3 @@
-
-
 /*Create a procedure P1 that will have a record type based on emp_num, emp_fname,
  emp_lname and emp_sal.  Then, create a table type based on this record type.  
  The procedure should access relevant employee data from the employee table and
@@ -295,4 +293,10 @@ END;
 /
 
  
-
+/*Remove duplicate Data from person table*/
+Explain plan for delete from persons where rowid not in (select max(rowid) from persons group by personid);
+/*compare both the explain plans-Deletion using analytical function avoids full table scans and deletion is more efficient*/
+Explain plan for Delete from persons 
+where rowid in (select rid from 
+( select rowid rid,row_number() over(partition by personid order by rowid) rn from persons)
+where rn <> 1 );
