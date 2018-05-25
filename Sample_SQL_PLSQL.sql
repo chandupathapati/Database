@@ -210,7 +210,7 @@ SQL> declare
  18  /
 
 
-/*Create a row trigger called ‚Äúat_emp_sal‚Äù for the employee table. 
+/*Create a row trigger called ìat_emp_salî for the employee table. 
  When emp_sal is updated, the trigger will insert the username, emp_num, current date, 
  the existing and new emp_sal into the "log_emp" table. To insert this information, 
  create an appropriate "log_emp" first before you create the trigger.*/
